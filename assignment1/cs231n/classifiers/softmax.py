@@ -33,7 +33,26 @@ def softmax_loss_naive(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
+    loss = 0.0
+
+    for j in range(num_train):
+        sum_exp = np.sum(np.exp(np.dot(X[j,:],W)))
+
+        for i in range(num_classes):
+            prob =  - np.dot(X[j,:], W[:,i]) + np.log(sum_exp)
+            loss += prob
+
+            #dW[:,i] += X[:,i]
+
+    loss /= num_train
+    loss /= num_classes
+    loss += reg * np.sum(np.dot(W.T,W))
+
+    #dW /= num_train
+    #dW /= num_classes
+    #dW /= 2 * reg * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

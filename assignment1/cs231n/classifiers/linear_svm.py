@@ -27,14 +27,15 @@ def svm_loss_naive(W, X, y, reg):
     num_classes = W.shape[1]
     num_train = X.shape[0]
     loss = 0.0
+
     for i in range(num_train):
-        scores = X[i].dot(W)
-        correct_class_score = scores[y[i]]
+        scores = X[i].dot(W)                            #y = X.W
+        correct_class_score = scores[y[i]]              #we access the correct class
         for j in range(num_classes):
-            if j == y[i]:
+            if j == y[i]:                               #Ignore the correct class
                 continue
             margin = scores[j] - correct_class_score + 1 # note delta = 1
-            if margin > 0:
+            if margin > 0:                               # if positive than add all errors
                 loss += margin
 
                 dW[:, j] += X[i]
