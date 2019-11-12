@@ -37,22 +37,26 @@ def softmax_loss_naive(W, X, y, reg):
     num_train = X.shape[0]
     loss = 0.0
 
-    for j in range(num_train):
-        sum_exp = np.sum(np.exp(np.dot(X[j,:],W)))
+    for i in range(num_train):
+        logits = X[i].dot(W)                            #y = X.W
+        logits -= np.max(logits)
+        
+        p = np.exp(logits) / np.sum(np.exp(logits))
+        loss += -np.log(p[y[i]])
 
-        for i in range(num_classes):
-            prob =  - np.dot(X[j,:], W[:,i]) + np.log(sum_exp)
-            loss += prob
+        for j in range(num_classes):  # Clarify
+                dW[:, j] += p[j] * X[i] 
+        dW[:,y[i]] -= X[i]
 
-            #dW[:,i] += X[:,i]
-
+    # Right now the loss is a sum over all training examples, but we want it
+    # to be an average instead so we divide by num_train.
     loss /= num_train
-    loss /= num_classes
-    loss += reg * np.sum(np.dot(W.T,W))
+    dW /= num_train
 
-    #dW /= num_train
-    #dW /= num_classes
-    #dW /= 2 * reg * W
+    # Add regularization to the loss.
+    loss += reg * np.sum(W * W)
+
+    dW += 2 * reg * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -77,7 +81,26 @@ def softmax_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    num_train = X.shape[0]
+    scores = X.dot(W)
+    scores = scores - np.max(scores, axis=1, keepdims=True)
+
+    # Softmax Loss
+    sum_exp_scores = np.exp(scores).sum(axis=1, keepdims=True)
+    softmax_matrix = np.exp(scores)/sum_exp_scores
+    loss = np.sum(-np.log(softmax_matrix[np.arange(num_train), y]) )
+
+    # Weight Gradient
+    softmax_matrix[np.arange(num_train),y] -= 1
+    dW = X.T.dot(softmax_matrix)
+
+    # Average
+    loss /= num_train
+    dW /= num_train
+
+    # Regularization
+    loss += reg * np.sum(W * W)
+    dW += reg * 2 * W 
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
